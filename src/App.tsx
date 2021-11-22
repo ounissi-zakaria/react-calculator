@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import './App.css'
+import { Button } from './Button'
+import { Screen } from './Screen'
 
 
 interface actionParams {
@@ -20,33 +22,6 @@ function App() {
         return <Button className={element.className} onClick={action({ state, setState })} key={element.value}>{element.value}</Button>
       })}
     </div >
-  )
-}
-
-interface ButtonParams {
-  children: string
-  className?: string
-  onClick: () => void
-}
-function Button({ children, className, onClick }: ButtonParams) {
-  return (
-    <button className={"font-bold bg-gray-200 hover:bg-gray-300 " + className} onClick={onClick}>
-      {children}
-    </button>
-  )
-}
-
-interface ScreenParams {
-  children: string
-  className?: string
-}
-function Screen({ children, className }: ScreenParams) {
-  return (
-    <div className={"relative bg-gray-100 " + className}>
-      <p className="absolute font-mono text-xl font-bold tracking-widest right-4 bottom-4">
-        {children}
-      </p>
-    </div>
   )
 }
 
