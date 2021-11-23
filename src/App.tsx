@@ -7,6 +7,10 @@ import { Screen } from './Screen'
 interface actionParams {
   equation: Array<string>,
   setEquation: (newState: Array<string>) => void
+  ans: number
+  setAns: (newAns: number) => void
+  showResult: boolean
+  setShowResult: (newResult: boolean) => void
 }
 
 function App() {
@@ -17,17 +21,21 @@ function App() {
     <div className="grid grid-cols-4 gap-0.5 h-screen">
       <Screen className="row-span-5 col-span-full" equation={equation.join("")} ans={ans} showResult={showResult} />
       {buttons.map(element => {
-        let write = ({ equation, setEquation }: actionParams) => {
+        let write = ({ equation, setEquation, ans, showResult, setShowResult }: actionParams) => {
           let newEquation = [...equation]
           let last = newEquation[newEquation.length - 1]
+          if (showResult && element.type === "operation") newEquation = [String(ans)]
           if (/\d/.test(last) && element.type === "number") newEquation[newEquation.length - 1] = last + element.value
           else if (element.type === "number") newEquation.push(element.value)
           else if (/\d/.test(last) && element.type === "operation") newEquation.push(element.value)
           else if (/[\*\/\-\+]/.test(last) && element.type === "operation") newEquation[newEquation.length - 1] = element.value
-          return () => setEquation(newEquation)
+          return () => {
+            setEquation(newEquation)
+            setShowResult(false)
+          }
         }
         let action = element.action ?? write
-        return <Button className={element.className} onClick={action({ equation, setEquation })} key={element.value}>{element.value}</Button>
+        return <Button className={element.className} onClick={action({ equation, setEquation, ans, setAns, showResult, setShowResult })} key={element.value}>{element.value}</Button>
       })}
     </div >
   )
@@ -39,15 +47,18 @@ const buttons = [
   {
     value: "AC",
     type: "function",
-    action: ({ equation, setEquation }: actionParams) => {
-      let closure = () => setEquation(Array())
+    action: ({ setEquation, setShowResult }: actionParams) => {
+      let closure = () => {
+        setShowResult(false)
+        setEquation(Array())
+      }
       return closure
     }
   },
   {
     value: "C",
     type: "function",
-    action: ({ equation, setEquation }: actionParams) => {
+    action: ({ equation, setEquation, setAns, setShowResult }: actionParams) => {
       let closure = () => {
         let newEquation = [...equation]
         newEquation[newEquation.length - 1] = newEquation[newEquation.length - 1]?.slice(0, -1)
@@ -113,8 +124,11 @@ const buttons = [
     value: "=",
     type: "function",
     className: "row-span-2",
-    action: ({ equation, setEquation }: actionParams) => {
-      let closure = () => setEquation([String(eval(equation.join("")))])
+    action: ({ equation, setAns, setShowResult }: actionParams) => {
+      let closure = () => {
+        setShowResult(true)
+        setAns(eval(equation.join("")))
+      }
       return closure
     }
   },
