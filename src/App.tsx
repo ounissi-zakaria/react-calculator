@@ -23,8 +23,12 @@ function App() {
       {buttons.map(element => {
         let write = ({ equation, setEquation, ans, showResult, setShowResult }: actionParams) => {
           let newEquation = [...equation]
-          let last = newEquation[newEquation.length - 1]
+
           if (showResult && element.type === "operation") newEquation = [String(ans)]
+          else if (showResult && element.type === "number") newEquation = []
+
+          let last = newEquation[newEquation.length - 1]
+
           if (/\d/.test(last) && element.type === "number") newEquation[newEquation.length - 1] = last + element.value
           else if (element.type === "number") newEquation.push(element.value)
           else if (/\d/.test(last) && element.type === "operation") newEquation.push(element.value)
@@ -58,12 +62,13 @@ const buttons = [
   {
     value: "C",
     type: "function",
-    action: ({ equation, setEquation, setAns, setShowResult }: actionParams) => {
+    action: ({ equation, setEquation, setShowResult }: actionParams) => {
+      let newEquation = [...equation]
+      newEquation[newEquation.length - 1] = newEquation[newEquation.length - 1]?.slice(0, -1)
+      if (newEquation[newEquation.length - 1] === "") newEquation.pop()
       let closure = () => {
-        let newEquation = [...equation]
-        newEquation[newEquation.length - 1] = newEquation[newEquation.length - 1]?.slice(0, -1)
-        if (newEquation[newEquation.length - 1] === "") newEquation.pop()
         setEquation(newEquation)
+        setShowResult(false)
       }
       return closure
     }
