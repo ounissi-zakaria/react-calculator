@@ -5,27 +5,29 @@ import { Screen } from './Screen'
 
 
 interface actionParams {
-  state: Array<string>,
-  setState: (newState: Array<string>) => void
+  equation: Array<string>,
+  setEquation: (newState: Array<string>) => void
 }
 
 function App() {
-  const [state, setState] = useState(Array<string>())
+  const [equation, setEquation] = useState(Array<string>())
+  const [ans, setAns] = useState(0)
+  const [showResult, setShowResult] = useState(false)
   return (
     <div className="grid grid-cols-4 gap-0.5 h-screen">
-      <Screen className="row-span-5 col-span-full">{state.join("")}</Screen>
+      <Screen className="row-span-5 col-span-full" equation={equation.join("")} ans={ans} showResult={showResult} />
       {buttons.map(element => {
-        let write = ({ state, setState }: actionParams) => {
-          let newState = [...state]
-          let last = newState[newState.length - 1]
-          if (/\d/.test(last) && element.type === "number") newState[newState.length - 1] = last + element.value
-          else if (element.type === "number") newState.push(element.value)
-          else if (/\d/.test(last) && element.type === "operation") newState.push(element.value)
-          else if (/[\*\/\-\+]/.test(last) && element.type === "operation") newState[newState.length - 1] = element.value
-          return () => setState(newState)
+        let write = ({ equation, setEquation }: actionParams) => {
+          let newEquation = [...equation]
+          let last = newEquation[newEquation.length - 1]
+          if (/\d/.test(last) && element.type === "number") newEquation[newEquation.length - 1] = last + element.value
+          else if (element.type === "number") newEquation.push(element.value)
+          else if (/\d/.test(last) && element.type === "operation") newEquation.push(element.value)
+          else if (/[\*\/\-\+]/.test(last) && element.type === "operation") newEquation[newEquation.length - 1] = element.value
+          return () => setEquation(newEquation)
         }
         let action = element.action ?? write
-        return <Button className={element.className} onClick={action({ state, setState })} key={element.value}>{element.value}</Button>
+        return <Button className={element.className} onClick={action({ equation, setEquation })} key={element.value}>{element.value}</Button>
       })}
     </div >
   )
@@ -37,20 +39,20 @@ const buttons = [
   {
     value: "AC",
     type: "function",
-    action: ({ state, setState }: actionParams) => {
-      let closure = () => setState(Array())
+    action: ({ equation, setEquation }: actionParams) => {
+      let closure = () => setEquation(Array())
       return closure
     }
   },
   {
     value: "C",
     type: "function",
-    action: ({ state, setState }: actionParams) => {
+    action: ({ equation, setEquation }: actionParams) => {
       let closure = () => {
-        let newState = [...state]
-        newState[newState.length - 1] = newState[newState.length - 1]?.slice(0, -1)
-        if (newState[newState.length - 1] === "") newState.pop()
-        setState(newState)
+        let newEquation = [...equation]
+        newEquation[newEquation.length - 1] = newEquation[newEquation.length - 1]?.slice(0, -1)
+        if (newEquation[newEquation.length - 1] === "") newEquation.pop()
+        setEquation(newEquation)
       }
       return closure
     }
@@ -111,8 +113,8 @@ const buttons = [
     value: "=",
     type: "function",
     className: "row-span-2",
-    action: ({ state, setState }: actionParams) => {
-      let closure = () => setState([String(eval(state.join("")))])
+    action: ({ equation, setEquation }: actionParams) => {
+      let closure = () => setEquation([String(eval(equation.join("")))])
       return closure
     }
   },
